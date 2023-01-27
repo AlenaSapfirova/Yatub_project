@@ -1,11 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+
 
 from django.http import HttpResponse
+from .models import Post
+from .models import Group
 
 def index(request):
-    template = 'posts/index.html'
-    return render(request, template)
+    posts = Post.objects.order_by('-pub_date')[:10]
+    context = {
+        'posts':posts,
+    }
+    return render(request, 'posts/index.html', context)
 
 
-def group_posts(requets, any_slug):
-    return HttpResponse(f'Чат сообщества {any_slug}')
+def group_posts(requets, slug):
+    group = get_object_or_404(Group, slug = slug)
+    posts = Post.objects.filter(group=group).order_by('-pub_date')[:10]
+    context = {
+        'group': group,
+        'posts': posts,
+    }
+    return render(requets, 'posts/group_list.html', context)
+
